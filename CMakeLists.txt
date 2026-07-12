@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(PhonkFinisher VERSION 0.1.0)
+project(MontagemFinisher VERSION 0.1.0)
 
 add_subdirectory(libs/JUCE)
 
@@ -9,8 +9,8 @@ else()
     set(PHONK_FORMATS VST3 Standalone)
 endif()
 
-juce_add_plugin(PhonkFinisher
-    COMPANY_NAME "MontagemFinisher"
+juce_add_plugin(MontagemFinisher
+    COMPANY_NAME "montagem.finisher"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
@@ -20,19 +20,19 @@ juce_add_plugin(PhonkFinisher
     PLUGIN_MANUFACTURER_CODE Mtgf
     PLUGIN_CODE Fnsh
     FORMATS ${PHONK_FORMATS}
-    PRODUCT_NAME "Phonk Finisher")
+    PRODUCT_NAME "Montagem Finisher")
 
-target_sources(PhonkFinisher PRIVATE
+target_sources(MontagemFinisher PRIVATE
     Source/FinisherProcessor.cpp
     Source/PluginEditor.cpp
     Source/PluginEntry.cpp)
 
-target_compile_definitions(PhonkFinisher PUBLIC
+target_compile_definitions(MontagemFinisher PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0)
 
-target_link_libraries(PhonkFinisher
+target_link_libraries(MontagemFinisher
     PRIVATE
         juce::juce_audio_utils
         juce::juce_audio_processors

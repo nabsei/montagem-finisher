@@ -4,7 +4,7 @@ namespace
 {
     // Deterministic pseudo-waveform bars used as pure decoration on each side
     // of the knob -- ties the plugin UI back to the "before/after waveform"
-    // visual identity used across the brand's assets, without needing to
+    // visual identity used in the TikTok clips and avatar, without needing to
     // bundle an image asset via BinaryData.
     std::vector<float> makeBarHeights(int count, float seed)
     {
@@ -26,13 +26,13 @@ FinisherEditor::FinisherEditor(FinisherProcessor& p)
 {
     setLookAndFeel(&lookAndFeel);
 
-    titleLabel.setText("PHONK FINISHER", juce::dontSendNotification);
+    titleLabel.setText("MONTAGEM FINISHER", juce::dontSendNotification);
     titleLabel.setJustificationType(juce::Justification::centred);
     titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     titleLabel.setFont(juce::Font(juce::FontOptions(26.0f, juce::Font::bold)));
     addAndMakeVisible(titleLabel);
 
-    subtitleLabel.setText("FUNK AUTOMOTIVO  -  ONE-KNOB MASTER", juce::dontSendNotification);
+    subtitleLabel.setText("DRIVE & LOUDNESS  /  ONE-KNOB MASTER", juce::dontSendNotification);
     subtitleLabel.setJustificationType(juce::Justification::centred);
     subtitleLabel.setColour(juce::Label::textColourId, FinisherLookAndFeel::textDim);
     subtitleLabel.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::plain)));
@@ -58,7 +58,7 @@ FinisherEditor::FinisherEditor(FinisherProcessor& p)
     footerLabel.setFont(juce::Font(juce::FontOptions(11.0f, juce::Font::bold)));
     addAndMakeVisible(footerLabel);
 
-    amountSlider.onValueChange = [this] { updateValueLabel(); };
+    amountSlider.onValueChange = [this] { updateValueLabel(); repaint(); };
     updateValueLabel();
 
     brandLabel.setText("@montagem.finisher", juce::dontSendNotification);

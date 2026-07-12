@@ -1,4 +1,4 @@
-# Phonk Finisher
+# Montagem Finisher
 
 **A one-knob "genre finisher" audio plugin for funk automotivo / phonk producers.**
 
@@ -7,21 +7,21 @@ tonally-shaped, level-matched sound — no mixing knowledge required. Built with
 [JUCE](https://juce.com/), ships as VST3 / AU / Standalone on macOS and Windows.
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Phonk Finisher plugin UI">
+  <img src="assets/screenshot.png" alt="Montagem Finisher plugin UI">
 </p>
 
 <p align="center">
-  <strong><a href="https://github.com/nabsei/phonk-finisher/releases/latest">⬇ Download the latest beta</a></strong> — macOS and Windows, free.
+  <strong><a href="https://github.com/nabsei/montagem-finisher/releases/latest">⬇ Download the latest beta</a></strong> — macOS and Windows, free.
 </p>
 
 <p align="center">
-  Also listed on <a href="https://www.kvraudio.com/product/phonk-finisher-by-montagemfinisher">KVR Audio</a> and <a href="https://montagemfinisher.itch.io/phonk-finisher">itch.io</a>.
+  Also listed on <a href="https://www.kvraudio.com/product/phonk-finisher-by-montagemfinisher">KVR Audio</a>.
 </p>
 
 ## Why one knob
 
 Most effect plugins hand you five to ten parameters and assume you know how to use
-them. Phonk Finisher is built for a specific audience — funk automotivo / phonk
+them. Montagem Finisher is built for a specific audience — funk automotivo / phonk
 producers who want a sound that already matches the genre, fast — so every
 parameter that would normally be exposed (drive, tone, output limiting) is instead
 derived from a single `Amount` macro. Turn it up, it gets more "finished."
@@ -59,8 +59,12 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
+On macOS, add `-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"` to the configure step
+to build a universal binary (Apple Silicon + Intel) instead of the host-only
+default. The official beta releases are built this way.
+
 This produces a VST3, an AU component, and a standalone app under
-`build/PhonkFinisher_artefacts/Release/`, and installs the plugin formats into
+`build/MontagemFinisher_artefacts/Release/`, and installs the plugin formats into
 your system's plugin folders automatically (`COPY_PLUGIN_AFTER_BUILD`).
 
 ## Project structure
@@ -83,6 +87,11 @@ CMakeLists.txt
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Covers the architecture shown in this
-repository (JUCE plugin wrapper, UI, build setup). As noted above, the
-DSP calibration used in the actual product is not included here.
+**This repository's source code:** MIT — see [LICENSE](LICENSE). Covers
+the architecture shown here (JUCE plugin wrapper, UI, build setup). As
+noted above, the DSP calibration used in the actual product is not
+included in this source.
+
+**The compiled plugin (downloads / releases):** All rights reserved —
+free to use, not free to redistribute or resell. See the `TERMS.txt`
+included in each release download for the full terms.
