@@ -3,9 +3,8 @@
 namespace
 {
     // Deterministic pseudo-waveform bars used as pure decoration on each side
-    // of the knob -- ties the plugin UI back to the "before/after waveform"
-    // visual identity used in the TikTok clips and avatar, without needing to
-    // bundle an image asset via BinaryData.
+    // of the knob, mirrored (same heights, same colour) so the two sides
+    // always match -- without needing to bundle an image asset via BinaryData.
     std::vector<float> makeBarHeights(int count, float seed)
     {
         std::vector<float> heights;
@@ -67,7 +66,8 @@ FinisherEditor::FinisherEditor(FinisherProcessor& p)
     brandLabel.setFont(juce::Font(juce::FontOptions(10.0f, juce::Font::plain)));
     addAndMakeVisible(brandLabel);
 
-    setResizable(false, false);
+    setResizable(true, true);
+    setResizeLimits(360, 280, 900, 700);
     setSize(480, 360);
 }
 
@@ -91,7 +91,13 @@ void FinisherEditor::paint(juce::Graphics& g)
     g.setGradientFill(bgGradient);
     g.fillAll();
 
+    // Both sides now share one height pattern and one colour (interpolated
+    // red -> green with amount, matching the knob) instead of a fixed
+    // red-left/green-right split with two different random seeds and two
+    // different scaling formulas. The old asymmetry (different shape, and
+    // colour that never moved with amount) read as a bug, not a design choice.
     const float amount = (float)amountSlider.getValue();
+    const auto colour = FinisherLookAndFeel::red.interpolatedWith(FinisherLookAndFeel::green, amount);
 
     auto knobArea = amountSlider.getBounds().toFloat();
     const float barAreaWidth = 70.0f;
@@ -99,30 +105,30 @@ void FinisherEditor::paint(juce::Graphics& g)
     const float barWidth = 3.5f;
     const float baseY = knobArea.getCentreY();
     const float maxBarHalfHeight = knobArea.getHeight() * 0.42f;
+    const float scale = 0.4f + 0.6f * amount;
+    auto heights = makeBarHeights(barCount, 1.7f);
 
-    // red bars, decaying outward to the left of the knob
+    // left side
     {
-        auto heights = makeBarHeights(barCount, 1.7f);
         const float startX = knobArea.getX() - 18.0f;
         for (int i = 0; i < barCount; ++i)
         {
-            const float h = heights[(size_t)i] * maxBarHalfHeight * (0.4f + 0.6f * amount);
+            const float h = heights[(size_t)i] * maxBarHalfHeight * scale;
             const float x = startX - (float)i * (barWidth + 3.0f) - barWidth;
-            g.setColour(FinisherLookAndFeel::red.withAlpha(0.85f));
+            g.setColour(colour.withAlpha(0.85f));
             g.fillRoundedRectangle(x, baseY - h, barWidth, h * 2.0f, barWidth * 0.5f);
             if (x < barAreaWidth) break;
         }
     }
 
-    // green bars, growing outward to the right of the knob
+    // right side -- mirror of the left, same heights/colour/scale
     {
-        auto heights = makeBarHeights(barCount, 4.2f);
         const float startX = knobArea.getRight() + 18.0f;
         for (int i = 0; i < barCount; ++i)
         {
-            const float h = heights[(size_t)i] * maxBarHalfHeight * (0.5f + 0.5f * amount);
+            const float h = heights[(size_t)i] * maxBarHalfHeight * scale;
             const float x = startX + (float)i * (barWidth + 3.0f);
-            g.setColour(FinisherLookAndFeel::green.withAlpha(0.85f));
+            g.setColour(colour.withAlpha(0.85f));
             g.fillRoundedRectangle(x, baseY - h, barWidth, h * 2.0f, barWidth * 0.5f);
             if (x > bounds.getWidth() - barAreaWidth) break;
         }
@@ -141,7 +147,10 @@ void FinisherEditor::resized()
     footerLabel.setBounds(area.removeFromBottom(18));
     amountValueLabel.setBounds(area.removeFromBottom(28));
 
-    const int knobSize = 180;
+    // Scale with the available area (clamped) instead of a fixed size, so
+    // resizing the window actually grows/shrinks the knob rather than just
+    // leaving dead space around a fixed-size control.
+    const int knobSize = juce::jlimit(120, 260, juce::jmin(area.getWidth(), area.getHeight()) - 40);
     juce::Rectangle<int> knobArea(0, 0, knobSize, knobSize);
     knobArea.setCentre(area.getCentre());
     amountSlider.setBounds(knobArea);

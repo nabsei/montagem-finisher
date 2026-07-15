@@ -12,6 +12,7 @@ tonally-shaped, level-matched sound — no mixing knowledge required. Built with
 
 <p align="center">
   <strong><a href="https://github.com/nabsei/montagem-finisher/releases/latest">⬇ Download the latest beta</a></strong> — macOS and Windows, free.
+  · <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 <p align="center">
@@ -95,3 +96,17 @@ included in this source.
 **The compiled plugin (downloads / releases):** All rights reserved —
 free to use, not free to redistribute or resell. See the `TERMS.txt`
 included in each release download for the full terms.
+
+## Part of the Montagem chain
+
+Montagem Finisher is one piece of a small family of one-knob plugins for
+funk automotivo / phonk production, in signal-chain order:
+
+- [Montagem 808](https://github.com/nabsei/montagem-808) — 808 slide synth (the instrument)
+- **Montagem Finisher** (this repo) — drive, tone, loudness
+- [Montagem Widener](https://github.com/nabsei/montagem-widener) — stereo width
+- [Montagem Punch](https://github.com/nabsei/montagem-punch) — transient shaping
+
+Also by the same author: [Delta](https://github.com/nabsei/delta), a
+phase-cancellation null-test / difference-checker plugin (a different tool
+for a different audience — audio engineers doing verification work).

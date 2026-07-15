@@ -21,6 +21,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout FinisherProcessor::createPar
     return { params.begin(), params.end() };
 }
 
+bool FinisherProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+{
+    // Per-channel state arrays here are fixed at 2 elements; restrict the
+    // negotiated bus layout to stereo so a host can never index them out of
+    // bounds with a >2-channel configuration.
+    return layouts.getMainInputChannelSet() == juce::AudioChannelSet::stereo()
+        && layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
+}
+
 void FinisherProcessor::prepareToPlay(double sampleRate, int)
 {
     lastSampleRate = sampleRate;
