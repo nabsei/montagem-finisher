@@ -1,0 +1,177 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"          # e.g. v0.1.0, v1.2.3-beta
+  workflow_dispatch:       # manual trigger from the GitHub Actions UI
+
+permissions:
+  contents: write          # required to create GitHub Releases
+
+jobs:
+  # ─────────────────────────────────────────
+  # macOS — universal binary (arm64 + x86_64)
+  # ─────────────────────────────────────────
+  build-macos:
+    name: macOS (universal)
+    runs-on: macos-14      # Apple Silicon runner, cross-compiles for Intel too
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone JUCE
+        run: git clone --depth 1 https://github.com/juce-framework/JUCE.git libs/JUCE
+
+      - name: Install Ninja
+        run: brew install ninja
+
+      - name: Configure (universal binary)
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      # ── Collect artifacts ──
+      - name: Collect VST3
+        run: |
+          mkdir -p dist/macos
+          find build -name "*.vst3" -exec cp -R {} dist/macos/ \;
+
+      - name: Collect AU
+        run: |
+          find build -name "*.component" -exec cp -R {} dist/macos/ \;
+
+      - name: Collect Standalone
+        run: |
+          find build -name "Montagem Finisher.app" -exec cp -R {} dist/macos/ \;
+
+      - name: Add docs
+        run: |
+          cp INSTALL_Mac.txt dist/macos/INSTALL.txt
+          cp TERMS.txt dist/macos/TERMS.txt
+
+      # ── Package ──
+      - name: Create macOS zip
+        run: |
+          cd dist/macos
+          zip -r ../../MontagemFinisher_Beta_Mac.zip .
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: MontagemFinisher_Beta_Mac.zip
+
+  # ─────────────────────────────────────────
+  # Windows — VST3 + Standalone
+  # ─────────────────────────────────────────
+  build-windows:
+    name: Windows (x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone JUCE
+        run: git clone --depth 1 https://github.com/juce-framework/JUCE.git libs/JUCE
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure
+        run: |
+          cmake -B build -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      # ── Collect artifacts ──
+      - name: Collect VST3
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\windows
+          # VST3 bundles are directories on Windows -- filter for directories only
+          Get-ChildItem -Recurse -Directory -Filter "*.vst3" build | `
+            ForEach-Object { Copy-Item -Path $_.FullName -Destination dist\windows\ -Recurse -Force }
+
+      - name: Collect Standalone
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Filter "Montagem Finisher.exe" build | `
+            ForEach-Object { Copy-Item $_.FullName dist\windows\ -Force }
+
+      - name: Add docs
+        shell: pwsh
+        run: |
+          Copy-Item INSTALL_Windows.txt dist\windows\INSTALL.txt
+          Copy-Item TERMS.txt dist\windows\TERMS.txt
+
+      # ── Package ──
+      - name: Create Windows zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\windows\* `
+            -DestinationPath "MontagemFinisher_Beta_Windows.zip"
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: MontagemFinisher_Beta_Windows.zip
+
+  # ─────────────────────────────────────────
+  # Create the GitHub Release
+  # ─────────────────────────────────────────
+  release:
+    name: Publish GitHub Release
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download macOS build
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-build
+
+      - name: Download Windows build
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Montagem Finisher ${{ github.ref_name }} — Beta (macOS + Windows)"
+          draft: false
+          prerelease: false
+          body: |
+            One-knob drive/tone/loudness finisher, part of the Montagem chain.
+
+            Formats included:
+
+            - macOS (universal binary, Apple Silicon + Intel): VST3, AU, Standalone app
+            - Windows: VST3, Standalone app
+
+            ⚠️ Not code-signed / notarized yet. Each zip includes an INSTALL.txt with a short one-time step to get past macOS Gatekeeper / Windows SmartScreen on first run.
+
+            See CHANGELOG.md for the full version history. Bug reports and feedback welcome via GitHub Issues.
+          files: |
+            MontagemFinisher_Beta_Mac.zip
+            MontagemFinisher_Beta_Windows.zip

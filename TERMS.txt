@@ -1,0 +1,28 @@
+MONTAGEM FINISHER — TERMS OF USE (Beta)
+==========================================
+
+Copyright (c) 2026 nabsei (montagem.finisher). All rights reserved.
+
+This software is provided free of charge for personal and commercial
+music production use during the public beta period.
+
+You MAY:
+- Install and use this plugin on your own systems
+- Use it to produce and release music, including commercial releases
+
+You MAY NOT, without prior written permission:
+- Redistribute, re-upload, or mirror this software on any other website,
+  store, or platform
+- Sell, rent, or sublicense this software or any modified version of it
+- Reverse-engineer, decompile, or extract the DSP algorithm for use in
+  another product
+
+This software is provided "as is", without warranty of any kind, during
+this beta period. Functionality and these terms may change for the
+final v1.0 release.
+
+Official download location:
+- https://github.com/nabsei/montagem-finisher
+
+If you obtained this software from any other source, please verify
+authenticity via the link above.
